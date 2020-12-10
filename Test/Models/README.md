@@ -8,5 +8,9 @@ opencv-python 4.1.1.26
 keras 2.2.4
 numpy 1.16.1
 ```
+and finally
+```
+pip install imageai --upgrade
+```
 
 Then just run the python file after changing the input image's name.
