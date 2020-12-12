@@ -1,3 +1,5 @@
+{% load static %}
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -20,7 +22,7 @@
       <form action="." method="post" enctype="multipart/form-data">
         {% csrf_token %}
         {{form.as_p}}
-        <button class="btn btn-success btn-lg">Upload</button>
+        <button class="btn btn-success btn-md">Upload & Process</button>
 
       </form>
     </div>
@@ -35,6 +37,22 @@
 
     </div>
 
+    <!-- Progress bar -->
+    <div class="container">
+    <div class='progress-wrapper'>
+      <div id='progress-bar' class='progress-bar' style="background-color: #68a9ef; width: 0%;">&nbsp;</div>
+    </div>
+    <div id="progress-bar-message">Waiting for progress to start...</div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+    var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+    CeleryProgressBar.initProgressBar(progressUrl);
+    });
+    </script>
+
+    <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
