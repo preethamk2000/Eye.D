@@ -1,8 +1,7 @@
 from django.shortcuts import render,HttpResponse,redirect
 from .forms import Video_form
 from .models import Video
-# import time as tm
-from .tasks import go_to_sleep
+from .tasks import process_video
 
 
 def index(request):
@@ -13,8 +12,8 @@ def index(request):
         if form.is_valid():
             # form.save()
             # tm.sleep(20)
-            task = go_to_sleep.delay(10)
-            # return HttpResponse("<h1> Uploaded successfully! </h1>" + task.task_id);
+            file_name  = all_video[0].name
+            task = process_video.delay(file_name)
             return render(request, 'index.html', {"form": form, "all": all_video, "task_id":task.task_id})
     else:
         form = Video_form()
