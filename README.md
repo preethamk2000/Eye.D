@@ -10,7 +10,31 @@ We have used the *imageai* library for implementing the YOLO algorithm to retrie
 
 ## Object Tracking
 
-The centroid tracking algorithm has been employed to track objects from the bounding boxes returned by the YOLO model. The algorithm basically maps each box in the current frame with some box from the previous frame if they are close enough and the older box is recent enough, or creates a new object. We also filter out noise by removing objects which was tracked for less than a second. The example below shows an object being tracked.
+>Inspired from this [project](https://github.com/eonr/cctv-recap).
+
+The core idea of the object tracking is a version of the centroid tracking algorithm and an implemented version was found from the above project, but it has serious problems as discussed below.
+
+- The version implemented by the cctv-recap project didn't use an accurate model for object tracking (it used only contour detection from background subtraction), so it fails whenever a group of crowded objects move together/past each other and also when moving objects remain static for a portion of the whole video duration.
+
+An example where it fails is:
+
+Original video
+<p align="center"><img src="./images/original.gif" width="90%"> </p>
+
+Output video
+<p align="center"><img src="./images/failed.gif" width="90%"> </p>
+
+
+We can clearly see that the cctv-recap method fails to detect and label a lot vehicles.
+
+- But, this is exactly what happens in most traffic/other footage and not always do objects move spaciously(this is comparitively easier to detect). So, as the number of videos to process increases and complexity of each video in terms of moving objects increases, the cctv-recap method cannot scale accordingly.
+
+- So, we used the pretrained tiny-YOLO model with ImageAI object detection algorithms to predict objects with better accuracy even in crowded situations. Also, the output obtained by them is difficult to scale when a lot of videos are there and so doing extra processing on the video is not possible, but our project obtains the objects with their properties with decent accuracy in a summarized csv file along with induvidual images for each object which is very convenient for any sort of post-processing.
+
+### Object tracking algorithm basics
+
+
+The centroid tracking algorithm as mentionned above has been employed to track objects from the bounding boxes returned by the YOLO model. The algorithm basically maps each box in the current frame with some box from the previous frame if they are close enough and the older box is recent enough, or creates a new object. We also filter out noise by removing objects which was tracked for less than a second. The example below shows an object being tracked.
 
 <p align="center"><img src="./images/track.gif" width="70%"> </p>
 
@@ -25,10 +49,10 @@ In order to first isolate the object from it's key image, we apply background su
 
 ## Sample Result
 
-<p align="center"><img src="./images/sample6.png" width="70%"> </p>
-<p align="center"><img src="./images/sample7.png" width="70%"> </p>
-<p align="center"><img src="./images/sample4.png" width="70%"> </p>
-<p align="center"><img src="./images/sample1.png" width="70%"> </p>
-<p align="center"><img src="./images/sample3.png" width="70%"> </p>
-<p align="center"><img src="./images/sample5.png" width="70%"> </p>
-<p align="center"><img src="./images/sample2.png" width="70%"> </p>
+<p align="center"><img src="./images/sample6.png" width="100%"> </p>
+<p align="center"><img src="./images/sample7.png" width="100%"> </p>
+<p align="center"><img src="./images/sample4.png" width="100%"> </p>
+<p align="center"><img src="./images/sample1.png" width="100%"> </p>
+<p align="center"><img src="./images/sample3.png" width="100%"> </p>
+<p align="center"><img src="./images/sample5.png" width="100%"> </p>
+<p align="center"><img src="./images/sample2.png" width="100%"> </p>
