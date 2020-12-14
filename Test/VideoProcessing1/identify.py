@@ -9,7 +9,7 @@ import csv
 from utils import *
 
 execution_path = os.getcwd()
-VID_PATH = "./trial1.mp4"
+VID_PATH = "./trial2.mp4"
 MODEL_PATH = "../Models/yolo-tiny.h5"
 CONTINUITY_THRESHOLD = 8 #For cutting out boxes
 
