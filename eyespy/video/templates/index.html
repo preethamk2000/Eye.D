@@ -7,10 +7,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 
     <title>Upload Video</title>
+    <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
   </head>
   <body>
     <nav class="navbar navbar-dark bg-dark">
@@ -26,37 +30,61 @@
 
       </form>
     </div>
+
+    <div class="container mt-4">
+    <div class='progress-wrapper'>
+      <div id='progress-bar' class='progress-bar' style="background-color: #68a9ef; width: 0%;">&nbsp;</div>
+    </div>
+    <div id="progress-bar-message" class="mt-3">Waiting for progress to start...</div>
+    </div>
+
+    <div id="celery-result" class="container mt-3"></div>
  
     <hr>
     {% for x in all %}
         <h3 class="text-center mt-2 mb-2">{{x.title}}</h3>
-        <video class="embed-responsive embed-responsive-16by9" controls="controls" >
+        <video class="embed-responsive embed-responsive-4by3" controls="controls" >
             <source src="{{x.video.url}}" type="video/mp4" />
           </video>
         {% endfor %}
 
     </div>
 
-    <!-- Progress bar -->
-    <div class="container">
-    <div class='progress-wrapper'>
-      <div id='progress-bar' class='progress-bar' style="background-color: #68a9ef; width: 0%;">&nbsp;</div>
-    </div>
-    <div id="progress-bar-message">Waiting for progress to start...</div>
-    </div>
-
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    
     var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
-    CeleryProgressBar.initProgressBar(progressUrl);
+
+    function customResult() {
+      var something = document.getElementById("celery-result");
+      var button = document.createElement("button");
+
+      button.className += "btn ";
+      button.className += "btn-success ";
+      button.className += "btn-md ";
+      button.textContent = "Results";
+      button.addEventListener("click", myFunction, false);
+
+      something.appendChild(button);
+    }
+
+    $(function () {
+      CeleryProgressBar.initProgressBar(progressUrl, {
+        onResult: customResult,
+      })
     });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+      CeleryProgressBar.initProgressBar(progressUrl);
+    });
+
+    function myFunction() {
+      window.location.href = "http://127.0.0.1:8000/search";
+    }
     </script>
 
-    <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+
   </body>
 </html>
