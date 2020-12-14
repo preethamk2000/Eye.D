@@ -24,3 +24,11 @@ In order to first isolate the object from it's key image, we apply background su
 <p align="center"><img src="./images/color2.jpg" width="70%"> </p>
 
 ## Sample Result
+
+<p align="center"><img src="./images/sample6.png" width="70%"> </p>
+<p align="center"><img src="./images/sample7.png" width="70%"> </p>
+<p align="center"><img src="./images/sample4.png" width="70%"> </p>
+<p align="center"><img src="./images/sample1.png" width="70%"> </p>
+<p align="center"><img src="./images/sample3.png" width="70%"> </p>
+<p align="center"><img src="./images/sample5.png" width="70%"> </p>
+<p align="center"><img src="./images/sample2.png" width="70%"> </p>

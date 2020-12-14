@@ -95,11 +95,11 @@ def findColor(img, mask):
 
 
 @shared_task(bind=True)
-def video_process(self,filename):
+def video_process(self,filename,no_of_frames):
     progress_recorder = ProgressRecorder(self)
     # media_url = settings.MEDIA_URL
     # path_to_user_folder = media_url + "/video/20" + filename + ".mp4"
-    VID_PATH = "media/video/trial.mp4"
+    VID_PATH = "media/video/trial1.mp4"
     MODEL_PATH = "video/yolo-tiny.h5"
     CONTINUITY_THRESHOLD = 8 #For cutting out boxes
 
@@ -118,6 +118,10 @@ def video_process(self,filename):
     vid = cv2.VideoCapture(VID_PATH)
     fps = int(vid.get(cv2.CAP_PROP_FPS))
     length = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    no_of_frames[0] = length
+    no_of_frames[1] = fps
+
     frames = []
     masks = []
     ind = 0
@@ -158,8 +162,8 @@ def video_process(self,filename):
     #         if cv2.waitKey(1) & 0xFF == ord("q"):
     #             break
         ind += 1
-        if ind==60:
-            break
+        # if ind==60:
+        #     break
         progress_recorder.set_progress(ind, length+length//10, f'On iteration {ind}')
     masks = np.array(masks)
     frames = np.array(frames)
@@ -244,5 +248,5 @@ def video_process(self,filename):
                             ])
     
     progress_recorder.set_progress(ind+length//10, length+length//10, "Exporting data for result ...")
-    tm.sleep(2)
+    tm.sleep(3)
     # return "Done!"

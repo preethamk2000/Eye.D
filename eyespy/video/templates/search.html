@@ -38,21 +38,96 @@
           background-color: steelblue;
           color: white;
         }
+        
+        .colorb {
+            height:10px;
+            width:10px;
+            background-color:black;
+        }
+
+        img {
+              height: auto;
+              width:100px;
+        }
         </style>
   </head>
   <body>
     <nav class="navbar navbar-dark bg-dark">
-        <span class="navbar-brand mb-0 h1">EyeSpy Search</span>
+        <span class="navbar-brand mb-0 h1">Eye.D Search</span>
     </nav>
 
-    <input type="text" id="search" placeholder="Type to search">
+    <div class="container d-flex flex-column align-items-center justify-content-center mt-5" id="table">
+    <input class="form-control" style="width: 60%;" type="text" id="search" placeholder="Type to search">
 
-    <div class="container mt-5" id="table">
+    <div class="d-flex align-items-center justify-content-center mt-3" style="width: 60%;">
+    <!-- <input id="" type="checkbox" class="mr-3"> -->
+      <label style="width: 30%;" for="time">Filter by time </label>
+      <input class="mr-3" type="checkbox" id="time" value="time">
+      <input type="range" class="custom-range" id="customRange11" min="0" max="{{ frames }}" value="0">
+      <span class="font-weight-bold text-primary ml-2 valueSpan2"></span>
+    </div>
+    <small class="mb-3" id="emailHelp" class="form-text text-muted">
+      Vehicles occuring in an interval of 1 minute around the time you have selected are shown.
+    </small>
     {{ data|safe }}
     </div>
     <script>
       var $rows = $('#table .dataframe tbody tr');
       $('#search').keyup(function() {
+          var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
+          var $value = $('#customRange11');
+          var ts = Math.round($value.val()/{{ fps }});
+          filter_table(val, ts);
+          // $rows.show().filter(function() {
+          //     var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+          //     var start = parseFloat(text.split(" ")[3]);
+          //     var end = parseFloat(text.split(" ")[4]);
+          //     console.log(start,end);
+          //     return !~text.indexOf(val);
+          // }).hide();
+          // var myobj = document.getElementById("table");
+          // myobj.remove();
+      });
+
+      function filter_table(val,ts) {
+        // $rows = $('#table .dataframe tbody tr');
+        $rows.show().filter(function() {
+              var text = $(this).text().replace(/\s+/g, ' ').toLowerCase();
+              var startt = parseInt(text.split(" ")[3]);
+              var end = parseInt(text.split(" ")[4]);
+              // console.log(startt,end);
+              var ret = false;
+              var pos = (startt > (ts-10)) && (end < (ts+10)) ;
+              if( !pos && ( $("#time").is(":checked") ) )
+                ret = true;
+              return (!~text.indexOf(val) || ret);
+          }).hide();
+      }
+
+      $(document).ready(function() {
+
+      const $valueSpan = $('.valueSpan2');
+      const $value = $('#customRange11');
+      $valueSpan.html($value.val());
+      $value.on('input change', () => {
+        
+        
+        time_stamp = Math.round($value.val()/{{ fps }});
+        var $minutes = parseInt(time_stamp/60);
+        var $seconds = Math.round(time_stamp%60);
+
+        $valueSpan.html(String($minutes)+':'+String($seconds));
+        // console.log($minutes, $seconds);
+        var val = $.trim($('#search').val()).replace(/ +/g, ' ').toLowerCase();
+        if( $("#time").is(":checked") )
+         {
+            filter_table(val, time_stamp); 
+         }
+        // console.log($value.val());
+      });
+      });
+
+      $('#time').keyup(function() {
           var val = $.trim($(this).val()).replace(/ +/g, ' ').toLowerCase();
           
           $rows.show().filter(function() {
@@ -62,6 +137,23 @@
           // var myobj = document.getElementById("table");
           // myobj.remove();
       });
+
+      $('#min, #max').is(":checked")(function() {
+   var min = parseInt( $('#min').val(), 10 );
+   var max = parseInt( $('#max').val(), 10 );
+   $('#example tbody tr').each(function() {
+     var age = parseFloat( $('td:eq(3)', this).text() ) || 0; 
+     if (( isNaN( min ) && isNaN( max )) ||
+         ( isNaN( min ) && age <= max ) ||
+         ( min <= age   && isNaN( max )) ||
+         ( min <= age   && age <= max )) {
+        $(this).show()
+     } else {
+        $(this).hide()
+     }   
+   })
+});
+
     </script>
   </body>
 </html>
