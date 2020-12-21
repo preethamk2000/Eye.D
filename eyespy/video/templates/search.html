@@ -12,7 +12,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <title>Search Page</title>
 
     <style>
@@ -52,8 +52,9 @@
         </style>
   </head>
   <body>
-    <nav class="navbar navbar-dark bg-dark">
+    <nav class="navbar navbar-dark bg-dark p-3">
         <span class="navbar-brand mb-0 h1">Eye.D Search</span>
+        <button class="btn btn-md btn-success"><a href="http://127.0.0.1:8000/media/result/{{video_id}}/out.csv" download="out{{video_id}}.csv" style="color:#ffffff; text-decoration:none">Download CSV</a> <i class="fa fa-download"></i></button>
     </nav>
 
     <div class="container d-flex flex-column align-items-center justify-content-center mt-5" id="table">
@@ -67,7 +68,7 @@
       <span class="font-weight-bold text-primary ml-2 valueSpan2"></span>
     </div>
     <small class="mb-3" id="emailHelp" class="form-text text-muted">
-      Vehicles occuring in an interval of 1 minute around the time you have selected are shown.
+      Vehicles occuring in an interval of 10 seconds around the time you have selected are shown.
     </small>
     {{ data|safe }}
     </div>
@@ -138,21 +139,21 @@
           // myobj.remove();
       });
 
-      $('#min, #max').is(":checked")(function() {
-   var min = parseInt( $('#min').val(), 10 );
-   var max = parseInt( $('#max').val(), 10 );
-   $('#example tbody tr').each(function() {
-     var age = parseFloat( $('td:eq(3)', this).text() ) || 0; 
-     if (( isNaN( min ) && isNaN( max )) ||
-         ( isNaN( min ) && age <= max ) ||
-         ( min <= age   && isNaN( max )) ||
-         ( min <= age   && age <= max )) {
-        $(this).show()
-     } else {
-        $(this).hide()
-     }   
-   })
-});
+//       $('#min, #max').is(":checked")(function() {
+//    var min = parseInt( $('#min').val(), 10 );
+//    var max = parseInt( $('#max').val(), 10 );
+//    $('#example tbody tr').each(function() {
+//      var age = parseFloat( $('td:eq(3)', this).text() ) || 0; 
+//      if (( isNaN( min ) && isNaN( max )) ||
+//          ( isNaN( min ) && age <= max ) ||
+//          ( min <= age   && isNaN( max )) ||
+//          ( min <= age   && age <= max )) {
+//         $(this).show()
+//      } else {
+//         $(this).hide()
+//      }   
+//    })
+// });
 
     </script>
   </body>

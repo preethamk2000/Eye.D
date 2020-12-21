@@ -95,11 +95,13 @@ def findColor(img, mask):
 
 
 @shared_task(bind=True)
-def video_process(self,filename,no_of_frames):
+def video_process(self,fileURL,video_id):
+    print("========================"+fileURL)
     progress_recorder = ProgressRecorder(self)
     # media_url = settings.MEDIA_URL
     # path_to_user_folder = media_url + "/video/20" + filename + ".mp4"
-    VID_PATH = "media/video/trial1.mp4"
+    VID_PATH = fileURL[1:]
+    RESULT_DIR = "media/result/" + str(video_id) + "/"
     MODEL_PATH = "video/yolo-tiny.h5"
     CONTINUITY_THRESHOLD = 8 #For cutting out boxes
 
@@ -118,9 +120,6 @@ def video_process(self,filename,no_of_frames):
     vid = cv2.VideoCapture(VID_PATH)
     fps = int(vid.get(cv2.CAP_PROP_FPS))
     length = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    no_of_frames[0] = length
-    no_of_frames[1] = fps
 
     frames = []
     masks = []
@@ -162,9 +161,9 @@ def video_process(self,filename,no_of_frames):
     #         if cv2.waitKey(1) & 0xFF == ord("q"):
     #             break
         ind += 1
-        # if ind==60:
+        # if ind==100:
         #     break
-        progress_recorder.set_progress(ind, length+length//10, f'On iteration {ind}')
+        progress_recorder.set_progress(ind, length+length//10, 'Processing frame:'+str(ind))
     masks = np.array(masks)
     frames = np.array(frames)
     # print("--- %s seconds ---" % (tm.time() - start_time))
@@ -202,6 +201,14 @@ def video_process(self,filename,no_of_frames):
                 moving_objs.append(new_moving_obj)
     # print("Done", end=' ')
 
+    # Create a folder for every video processed
+    try:
+        os.makedirs(RESULT_DIR)
+        os.makedirs(RESULT_DIR + "images")
+    except FileExistsError:
+        # directory already exists
+        pass
+
     #Removing objects that occur for a very small duration
 
     MIN_FRAMES = MIN_SECONDS*(fps//3)
@@ -227,18 +234,18 @@ def video_process(self,filename,no_of_frames):
         moving_objs[i].type = max(otype, key=otype.get)
         rect = boxes[mx_i]
         x,y,w,h = map(int, list(rect.coords))
-        cv2.imwrite('media/result/'+str(i)+'.jpg', frames[rect.time, y:y+h, x:x+w])
+        cv2.imwrite(RESULT_DIR + "images/" + str(i)+'.jpg', frames[rect.time, y:y+h, x:x+w])
         ret,thresh = cv2.threshold(masks[rect.time],1,255,cv2.THRESH_BINARY)
         # cv2.imwrite('./result/a'+str(i)+'.jpg', thresh[y:y+h, x:x+w])
         moving_objs[i].img = frames[rect.time, y:y+h, x:x+w]    
         moving_objs[i].mask = thresh[y:y+h, x:x+w]
         moving_objs[i].color = findColor(moving_objs[i].img, moving_objs[i].mask)
-        temp = 'http://127.0.0.1:8000/media/result/'+str(i)+'.jpg'
+        temp = 'http://127.0.0.1:8000/'+ RESULT_DIR + "images/" + str(i)+'.jpg'
         moving_objs[i].imgname = temp
 
 
     SECONDS_PER_3FRAME = FRAMES_PER_DETECTION/fps
-    with open('media/out.csv', 'w', newline='') as f:
+    with open( RESULT_DIR + 'out.csv', 'w', newline='') as f:
         writer = csv.writer(f)
         for i,obj in enumerate(moving_objs):
             writer.writerow([i, obj.type, obj.color[0], obj.color[1], obj.color[2], 

@@ -12,46 +12,49 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-
-    <title>Upload Video</title>
     <script src="{% static 'celery_progress/celery_progress.js' %}"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Eye.D</title>
   </head>
   <body>
-    <nav class="navbar navbar-dark bg-dark">
+    <nav class="navbar navbar-dark bg-dark p-3">
         <span class="navbar-brand mb-0 h1">Eye.D Home</span>
     </nav>
     <div class="container">
     
      <div class="mt-5">
       <form action="." method="post" enctype="multipart/form-data">
-        {% csrf_token %}
+        <!-- {% csrf_token %} -->
         {{form.as_p}}
-        <button class="btn btn-success btn-md">Upload & Process</button>
+        <button class="btn btn-success btn-md">Upload & Process  <i class="fa fa-cloud-upload ml-1" style="font-size:20px"></i></button>
 
       </form>
     </div>
 
     <div class="container mt-4">
-    <div class='progress-wrapper'>
-      <div id='progress-bar' class='progress-bar' style="background-color: #68a9ef; width: 0%;">&nbsp;</div>
-    </div>
-    <div id="progress-bar-message" class="mt-3">Waiting for progress to start...</div>
+      <div class='progress-wrapper'>
+        <div id='progress-bar' class='progress-bar' style="background-color: #68a9ef; width: 0%;">&nbsp;</div>
+      </div>
+      <div id="progress-bar-message" class="mt-3">Waiting for progress to start...</div>
     </div>
 
     <div id="celery-result" class="container mt-3"></div>
  
     <hr>
     {% for x in all %}
-        <h3 class="text-center mt-2 mb-2">{{x.title}}</h3>
-        <video class="embed-responsive embed-responsive-4by3" controls="controls" >
-            <source src="{{x.video.url}}" type="video/mp4" />
+        <div class="container">
+          <h3 class="text-center mt-2 mb-2">{{x.title}}</h3>
+          <video class="embed-responsive embed-responsive-4by3" controls="controls" >
+              <source src="{{x.video.url}}" type="video/mp4" />
           </video>
-        {% endfor %}
-
-    </div>
+          <button class="btn btn-md btn-info my-3" onclick="location.href='http://127.0.0.1:8000/search/{{x.id}}'" type="button">
+          Results for {{x.title}}
+          </button>
+        </div>
+    {% endfor %}
 
     <script>
-    
+
     var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
 
     function customResult() {
@@ -74,12 +77,12 @@
     });
 
     document.addEventListener("DOMContentLoaded", function () {
-      var progressUrl = "{% url 'celery_progress:task_status' task_id %}";
+      progressUrl = "{% url 'celery_progress:task_status' task_id %}";
       CeleryProgressBar.initProgressBar(progressUrl);
     });
 
     function myFunction() {
-      window.location.href = "http://127.0.0.1:8000/search?filename="{{ filename }};
+      window.location.href = "http://127.0.0.1:8000/search/{{ file_id }}";
     }
     </script>
 

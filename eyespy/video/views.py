@@ -12,45 +12,56 @@ from .tasks import video_process
 # from scipy.stats import itemfreq
 # from IPython.core.display import HTML
 
-no_of_frames = [760,30]
+# no_of_frames = [760,30]
 
-filename = "trial1.mp4"
+# filename = "trial1.mp4"
 
 def index(request):
     all_video = Video.objects.all()
     if request.method == "POST":
         form = Video_form(data=request.POST, files=request.FILES)
         if form.is_valid():
-            form.save()
+            obj = form.save()
+            # (frames,fps) = get_frames_fps(obj.video.url)
+            # obj.frames = frames
+            # obj.fps = fps
+            # obj.save()
             # filename = request.POST["title"]
             # tm.sleep(20)
             # task = go_to_sleep.delay(10)
             # video_process()
             # return HttpResponse("<h1> Uploaded successfully! </h1>" + task.task_id);
-            task = video_process.delay("filename",no_of_frames)
+            # return HttpResponse(obj.video.url)
+            task = video_process.delay(obj.video.url,obj.pk)
+            (frames,fps) = get_frames_fps(obj.video.url)
+            obj.frames = frames
+            obj.fps = fps
+            obj.save()
             # return HttpResponse("Done")
             # return render(request, 'index.html', {"form": form, "all": all_video, "done":1})
-            return render(request, 'index.html', {"form": form, "all": all_video, "task_id":task.task_id, "file":filename})
+            return render(request, 'index.html', {"form": form, "all": all_video, "task_id":task.task_id, "file_id": obj.pk})
     else:
         form = Video_form()
-        return render(request, 'index.html', {"form": form, "all": all_video, "task_id":"0", "file":filename})
+        return render(request, 'index.html', {"form": form, "all": all_video, "task_id":"0", "file_id": -1})
 
 
 
-def search(request):
-    # filename = request.GET["filename"]
-    # VID_PATH = "media/video/"+filename
-    # vid = cv2.VideoCapture(VID_PATH)
-    # fps = int(vid.get(cv2.CAP_PROP_FPS))
-    # length = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
-    df = pd.read_csv("media/out.csv",index_col=False,names=['id','Vehicle Type','B','G','R',"Entry","Exit","Image URL"])
+def search(request,video_id):
+    # return HttpResponse(video_id)
+    # video_id = request.GET["id"]
+    obj = Video.objects.get( pk=video_id )
+    # (frames,fps) = get_frames_fps(obj.video.url)
+    # obj.frames = frames
+    # obj.fps = fps
+    # obj.save()
+    df = pd.read_csv("media/result/"+ str(video_id) +"/out.csv",index_col=False,names=['id','Vehicle Type','B','G','R',"Entry","Exit","Image URL"])
     df.drop('id', axis=1, inplace=True)
     # df = df.to_html(escape=False, render_links=True)
 
     # df = HTML(df).data
     # return HttpResponse(df)
     df = create_table(df)
-    return render(request,'search.html',{"data":df, "frames":no_of_frames[0], "fps":no_of_frames[1]})
+    return render(request,'search.html',{"data":df, "frames": obj.frames, "fps": obj.fps, "video_id": video_id})
     # return HttpResponse("Done!")
 
 def closest_colour(requested_colour):
@@ -101,7 +112,14 @@ def create_table(df):
     #     print(cc)
         res = res + '<td><div style="width: 50px;height: 50px;background-color:rgb('+cc+'); border: solid black 3px; border-radius: 30px;"></div></td>\n'
         res = res + '\t\t<td>'+ get_colour_name((r,g,b)) + '</td>\n'
-        res = res+'\t\t<td><img src=\'/media/result/'+str(i)+'.jpg\'></img></td>\n'
+        # res = res+'\t\t<td><img src=\'/media/result/'+str(i)+'.jpg\'></img></td>\n'
+        res = res+'\t\t<td><img src=\'' + df.loc[i,'Image URL'] + '\'></img></td>\n'
         res = res + '\t</tr>\n'
     res = res + '</tbody> </table> \n'
     return res
+
+def get_frames_fps(video_path):
+    vid = cv2.VideoCapture(video_path[1:])
+    fps = int(vid.get(cv2.CAP_PROP_FPS))
+    length = int(vid.get(cv2.CAP_PROP_FRAME_COUNT))
+    return (length,fps)
