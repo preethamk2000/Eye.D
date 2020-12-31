@@ -2,6 +2,8 @@
 
 Search for vehicles based on type, color and/or timestamps from several hours of CCTV footage with ease.
 
+For setup instructions, refer [SETUP.md](https://github.com/preethamk2000/Eye.D/blob/master/Setup.md)
+
 ## Object Detection
 
 We have used the *imageai* library for implementing the YOLO algorithm to retrieve bounding boxes from the image. The *yolo-tiny* pre-trained model has been used to save computation time. The model is run only for every 3 frames (as it takes approximately 0.5 seconds for each detection when run on CPU). A sample output for a frame is shown below. 
@@ -40,7 +42,7 @@ The centroid tracking algorithm as mentionned above has been employed to track o
 
 As the object is tracked, we have a lot of boxes for an object. The box with the maximum area is considered as the key image for that object.
 
-## Color Dectection
+## Color Detection
 
 In order to first isolate the object from it's key image, we apply background subtraction on the video and find contours. We then apply *k-means clustering* on the colors of pixels present only inside the contour to find the most dense colors with just two clusters. Since all the cars have a dark portion of a windshield and tyres, from the two color-centers obtained, the lighter one is chosen. Some results of color detection are shown below :
 
