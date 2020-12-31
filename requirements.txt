@@ -1,0 +1,11 @@
+numpy==1.16.1
+pandas==1.1.5
+tensorflow==1.4.0
+opencv-python==4.1.1.26
+keras==2.2.4
+imageai==2.1.5
+celery==5.0.4 
+# ok, 5.0.5 tested fine
+celery-progress==0.0.14
+django-celery-results==2.0.0
+# VM, 0.24.1 local
